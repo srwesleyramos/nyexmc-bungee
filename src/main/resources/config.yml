@@ -1,0 +1,13 @@
+##########################################################
+#                                                        #
+#                Nyex Gaming - BungeeCord                #
+#                        V 1.0.0                         #
+#                                                        #
+#      ⇝ Loja: https://nyexgaming.com.br/                #
+#      ⇝ Discord: https://nyexgaming.com.br/discord      #
+#                                                        #
+##########################################################
+
+config:
+  token-store: ''
+  token-server: ''

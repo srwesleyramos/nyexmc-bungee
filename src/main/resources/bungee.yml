@@ -1,0 +1,16 @@
+main: br.com.nyexgaming.mc.bungee.NyexPlugin
+
+name: NyexGaming
+description: 'Plugin para integração da plataforma NyexGaming.'
+version: 1.0.0
+
+author: WesleyGames001
+website: nyexgaming.com.br
+
+commands:
+  gnyexgaming:
+    aliases:
+      - gnyex
+    description: 'Comando administrativo do plugin.'
+    permission: nyexgaming.command
+    permission-message: 'NyexGaming ⇝ Você não possui permissão para este comando.'
