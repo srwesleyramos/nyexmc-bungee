@@ -1,13 +1,24 @@
-##########################################################
-#                                                        #
-#                Nyex Gaming - BungeeCord                #
-#                        V 1.0.0                         #
-#                                                        #
-#      ⇝ Loja: https://nyexgaming.com.br/                #
-#      ⇝ Discord: https://nyexgaming.com.br/discord      #
-#                                                        #
-##########################################################
+##############################################################
+#                                                            #
+#                  Nyex Gaming - BungeeCord                  #
+#                          V 1.0.0                           #
+#                                                            #
+#      ⇝ Loja: https://nyexgaming.com.br/                    #
+#      ⇝ Discord: https://comunidade.nyexgaming.com.br/      #
+#                                                            #
+##############################################################
 
 config:
-  token-store: ''
+  token-loja: ''
   token-server: ''
+
+service:
+  #                                                                       #
+  #   Em que local o jogador deve executar os comandos?                   #
+  #   Essa opção ocorre quando a configuração "console" é definida como   #
+  #   "false" nos comandos dos produtos em nosso painel                   #
+  #                                                                       #
+  #   1. Coloque true para executar no BungeeCord                         #
+  #   2. Coloque false para executar nos servidores                       #
+  #                                                                       #
+  bungeecord-commands: false

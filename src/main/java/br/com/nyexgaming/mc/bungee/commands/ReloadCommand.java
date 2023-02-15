@@ -11,7 +11,7 @@ public class ReloadCommand extends Command {
     public ReloadCommand() {
         super("gnyexgaming", "nyexgaming.command", "gnyex");
 
-        this.setPermissionMessage("§4NyexGaming ⇝ §cVocê não possui permissão para este comando.");
+        this.setPermissionMessage("§4Nyex Bungee ⇝ §cVocê não possui permissão para este comando.");
     }
 
     @Override
@@ -20,6 +20,6 @@ public class ReloadCommand extends Command {
 
         plugin.reload();
 
-        sender.sendMessage(new TextComponent("§9NyexGaming ⇝ §fA operação foi executada com êxito, verifique o console para possíveis erros."));
+        sender.sendMessage(new TextComponent("§9Nyex Bungee ⇝ §fA operação foi executada, verifique o console para possíveis erros."));
     }
 }

@@ -2,7 +2,9 @@ package br.com.nyexgaming.mc.bungee;
 
 import br.com.nyexgaming.mc.bungee.commands.ReloadCommand;
 import br.com.nyexgaming.mc.bungee.controller.Controller;
+import br.com.nyexgaming.mc.bungee.controller.tasks.ActivateTask;
 import br.com.nyexgaming.sdk.NyexGaming;
+import br.com.nyexgaming.sdk.endpoints.transactions.Transaction;
 import br.com.nyexgaming.sdk.http.exceptions.NetworkErrorException;
 import br.com.nyexgaming.sdk.http.exceptions.RequestFailedException;
 import br.com.nyexgaming.sdk.http.exceptions.TokenFailureException;
@@ -18,7 +20,28 @@ import java.nio.file.Files;
 
 public class NyexPlugin extends Plugin {
 
-    private Controller controller;
+    private final Controller controller = new Controller();
+
+    public static Configuration getConfig() {
+        try {
+            NyexPlugin plugin = (NyexPlugin) ProxyServer.getInstance().getPluginManager().getPlugin("NyexGaming");
+            File file = new File(plugin.getDataFolder(), "config.yml");
+
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+
+                try {
+                    Files.copy(plugin.getResourceAsStream("config.yml"), file.toPath());
+                } catch (IOException ignored) {
+                }
+            }
+
+            return YamlConfiguration.getProvider(YamlConfiguration.class).load(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     public void onEnable() {
@@ -28,7 +51,7 @@ public class NyexPlugin extends Plugin {
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §d                   V 1.0.0                      "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Loja: §fhttps://nyexgaming.com.br/           "));
-        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Discord: §fhttps://nyexgaming.com.br/discord "));
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Discord: §fhttps://comunidade.nyexgaming.com.br/ "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b------------------------------------------------"));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
@@ -49,54 +72,43 @@ public class NyexPlugin extends Plugin {
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §d                   V 1.0.0                      "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Loja: §fhttps://nyexgaming.com.br/           "));
-        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Discord: §fhttps://nyexgaming.com.br/discord "));
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §e ⇝ Discord: §fhttps://comunidade.nyexgaming.com.br/ "));
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b------------------------------------------------"));
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
+
+        if (this.controller.getTask().isAlive()) {
+            this.controller.getTask().interrupt();
+        }
+
+        ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §fTodos os modulos foram desativados com sucesso."));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b                                                "));
         ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §b------------------------------------------------"));
     }
 
     public void reload() {
-        if (this.controller != null && this.controller.getTask().isAlive()) {
+        if (this.controller.getTask() != null && this.controller.getTask().isAlive()) {
             this.controller.getTask().interrupt();
         }
 
-        NyexGaming SDK = new NyexGaming(this.getConfig().getString("token-loja"), this.getConfig().getString("token-server"));
-        Controller controller = new Controller(SDK);
+        NyexGaming SDK = new NyexGaming(getConfig().getString("token-loja"), getConfig().getString("token-server"));
 
         try {
-            controller.execute(SDK.getTransactions());
+            Transaction[] transactions = SDK.getTransactions();
+
+            this.controller.setSDK(SDK);
+            this.controller.setTask(new ActivateTask(this.controller));
+            this.controller.getTask().start();
+            this.controller.execute(transactions);
 
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§9[Nyex Bungee]: §fTodos os modulos foram carregados com sucesso."));
         } catch (NetworkErrorException | RequestFailedException | TokenFailureException e) {
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§4[Nyex Bungee]: §cOcorreu um erro ao comunicar-se com nossos servidores."));
             ProxyServer.getInstance().getConsole().sendMessage(new TextComponent("§4[Nyex Bungee]: §c" + e.getMessage()));
-
-            if (e instanceof TokenFailureException) return;
         }
-
-        this.controller = controller;
-        this.controller.getTask().start();
     }
 
     public Controller getController() {
         return controller;
-    }
-
-    public Configuration getConfig() {
-        try {
-            File file = new File(this.getDataFolder(), "config.yml");
-
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-
-                try {
-                    Files.copy(this.getResourceAsStream("config.yml"), file.toPath());
-                } catch (IOException ignored) {
-                }
-            }
-
-            return YamlConfiguration.getProvider(YamlConfiguration.class).load(file);
-        } catch (IOException e) {
-            return null;
-        }
     }
 }

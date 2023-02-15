@@ -1,7 +1,10 @@
 package br.com.nyexgaming.mc.bungee.controller;
 
+import br.com.nyexgaming.mc.bungee.NyexPlugin;
+import br.com.nyexgaming.mc.bungee.controller.tasks.ActivateTask;
 import br.com.nyexgaming.sdk.NyexGaming;
 import br.com.nyexgaming.sdk.endpoints.products.Product;
+import br.com.nyexgaming.sdk.endpoints.products.ProductCommand;
 import br.com.nyexgaming.sdk.endpoints.transactions.Transaction;
 import br.com.nyexgaming.sdk.endpoints.transactions.TransactionStatus;
 import br.com.nyexgaming.sdk.http.exceptions.NetworkErrorException;
@@ -12,49 +15,66 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class Controller {
 
-    private final NyexGaming sdk;
-    private final Task task;
+    private NyexGaming sdk;
+    private ActivateTask task;
 
-    public Controller(NyexGaming sdk) {
-        this.sdk = sdk;
-        this.task = new Task(this);
+    public Controller() {
     }
 
     public void execute(Transaction[] transactions) throws NetworkErrorException, RequestFailedException, TokenFailureException {
+        boolean bungeecordCommands = NyexPlugin.getConfig().getBoolean("service.bungeecord-commands");
+
         for (Transaction transaction : transactions) {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(transaction.identificador);
 
-            if (player == null || transaction.getStatus() != TransactionStatus.PAID) continue;
+            if (player == null || transaction.status != TransactionStatus.PAID.statusCode) continue;
+
+            transaction.entregue = true;
+            this.sdk.update(transaction);
 
             for (Product product : transaction.produtos) {
-                for (String command : product.comandos) {
-                    for (int i = 0; i < (command.contains("{{quantidade}}") ? 1 : product.quantidade); i++) {
+                for (int i = 0; i < product.quantidade; i++) {
+                    for (ProductCommand command : product.comandos) {
+                        String message = format(
+                                product, command.cmd.replace("{{jogador}}", player.getName())
+                        );
+
+                        if (!command.console && !bungeecordCommands) {
+                            player.chat("/" + message);
+                            continue;
+                        }
+
                         ProxyServer.getInstance().getPluginManager().dispatchCommand(
-                                ProxyServer.getInstance().getConsole(),
-                                getFormattedText(product, command.replace("{{jogador}}", player.getName()))
+                                command.console ? ProxyServer.getInstance().getConsole() : player,
+                                message
                         );
                     }
                 }
             }
-
-            this.sdk.update(transaction.status(TransactionStatus.DELIVERED));
         }
     }
 
-    public String getFormattedText(Product product, String text) {
+    public String format(Product product, String text) {
         text = text.replace("{{nome}}", product.nome);
         text = text.replace("{{detalhes}}", product.detalhes);
-        text = text.replace("{{quantidade}}", Integer.toString(product.quantidade));
         text = text.replace("{{preco}}", product.preco);
 
         return text.replace("&", "§");
+    }
+
+    public ActivateTask getTask() {
+        return task;
+    }
+
+    public void setTask(ActivateTask task) {
+        this.task = task;
     }
 
     public NyexGaming getSDK() {
         return sdk;
     }
 
-    public Task getTask() {
-        return task;
+    public void setSDK(NyexGaming sdk) {
+        this.sdk = sdk;
     }
 }
