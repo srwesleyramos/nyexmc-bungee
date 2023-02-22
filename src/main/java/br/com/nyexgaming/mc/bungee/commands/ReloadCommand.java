@@ -9,7 +9,7 @@ import net.md_5.bungee.api.plugin.Command;
 public class ReloadCommand extends Command {
 
     public ReloadCommand() {
-        super("gnyexgaming", "nyexgaming.command", "gnyex");
+        super("gnyexgaming", "nyexgaming.command.admin", "gnyex");
 
         this.setPermissionMessage("§4Nyex Bungee ⇝ §cVocê não possui permissão para este comando.");
     }

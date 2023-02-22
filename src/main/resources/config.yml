@@ -9,8 +9,8 @@
 ##############################################################
 
 config:
-  token-loja: ''
-  token-server: ''
+  access-store: 'SEU TOKEN DA LOJA AQUI'
+  access-server: 'SEU TOKEN DO SERVIDOR AQUI'
 
 service:
   #                                                                       #

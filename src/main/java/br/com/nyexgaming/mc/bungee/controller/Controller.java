@@ -35,31 +35,19 @@ public class Controller {
             for (Product product : transaction.produtos) {
                 for (int i = 0; i < product.quantidade; i++) {
                     for (ProductCommand command : product.comandos) {
-                        String message = format(
-                                product, command.cmd.replace("{{jogador}}", player.getName())
-                        );
-
                         if (!command.console && !bungeecordCommands) {
-                            player.chat("/" + message);
+                            player.chat("/" + command.cmd.replace("<jogador>", player.getName()));
                             continue;
                         }
 
                         ProxyServer.getInstance().getPluginManager().dispatchCommand(
                                 command.console ? ProxyServer.getInstance().getConsole() : player,
-                                message
+                                command.cmd.replace("<jogador>", player.getName())
                         );
                     }
                 }
             }
         }
-    }
-
-    public String format(Product product, String text) {
-        text = text.replace("{{nome}}", product.nome);
-        text = text.replace("{{detalhes}}", product.detalhes);
-        text = text.replace("{{preco}}", product.preco);
-
-        return text.replace("&", "§");
     }
 
     public ActivateTask getTask() {

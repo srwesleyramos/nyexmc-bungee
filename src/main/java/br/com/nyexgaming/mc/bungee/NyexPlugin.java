@@ -91,7 +91,7 @@ public class NyexPlugin extends Plugin {
             this.controller.getTask().interrupt();
         }
 
-        NyexGaming SDK = new NyexGaming(getConfig().getString("token-loja"), getConfig().getString("token-server"));
+        NyexGaming SDK = new NyexGaming(getConfig().getString("config.access-store"), getConfig().getString("config.access-server"));
 
         try {
             Transaction[] transactions = SDK.getTransactions();

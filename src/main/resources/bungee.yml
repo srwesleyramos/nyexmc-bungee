@@ -12,5 +12,5 @@ commands:
     aliases:
       - gnyex
     description: 'Comando administrativo do plugin.'
-    permission: nyexgaming.command
+    permission: nyexgaming.command.admin
     permission-message: 'Nyex Bungee ⇝ Você não possui permissão para este comando.'
