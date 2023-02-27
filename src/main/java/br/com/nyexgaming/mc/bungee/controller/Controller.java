@@ -6,12 +6,13 @@ import br.com.nyexgaming.sdk.NyexGaming;
 import br.com.nyexgaming.sdk.endpoints.products.Product;
 import br.com.nyexgaming.sdk.endpoints.products.ProductCommand;
 import br.com.nyexgaming.sdk.endpoints.transactions.Transaction;
-import br.com.nyexgaming.sdk.endpoints.transactions.TransactionStatus;
 import br.com.nyexgaming.sdk.http.exceptions.NetworkErrorException;
 import br.com.nyexgaming.sdk.http.exceptions.RequestFailedException;
 import br.com.nyexgaming.sdk.http.exceptions.TokenFailureException;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.List;
 
 public class Controller {
 
@@ -23,14 +24,34 @@ public class Controller {
 
     public void execute(Transaction[] transactions) throws NetworkErrorException, RequestFailedException, TokenFailureException {
         boolean bungeecordCommands = NyexPlugin.getConfig().getBoolean("service.bungeecord-commands");
+        List<String> chargebackCommands = NyexPlugin.getConfig().getStringList("service.chargeback-commands");
 
         for (Transaction transaction : transactions) {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(transaction.identificador);
 
-            if (player == null || transaction.status != TransactionStatus.PAID.statusCode) continue;
+            if (player == null || transaction.entregue == 3) continue;
 
-            transaction.entregue = true;
-            this.sdk.update(transaction);
+            if (transaction.status == 2) {
+                if (transaction.entregue == 1) {
+                    for (String command : chargebackCommands) {
+                        ProxyServer.getInstance().getPluginManager().dispatchCommand(
+                                ProxyServer.getInstance().getConsole(),
+                                command.replace("<jogador>", player.getName())
+                        );
+                    }
+                }
+
+                transaction.entregue = 3;
+
+                sdk.update(transaction);
+                continue;
+            }
+
+            if (transaction.entregue == 1 || transaction.status != 1) continue;
+
+            transaction.entregue = 1;
+
+            sdk.update(transaction);
 
             for (Product product : transaction.produtos) {
                 for (int i = 0; i < product.quantidade; i++) {

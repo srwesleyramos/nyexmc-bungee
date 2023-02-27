@@ -22,3 +22,10 @@ service:
   #   2. Coloque false para executar nos servidores                       #
   #                                                                       #
   bungeecord-commands: false
+
+  #                                                       #
+  #   Comandos que serão executados caso o jogador peça   #
+  #   reembolso em alguma compra ENTREGUE.                #
+  #                                                       #
+  chargeback-commands:
+    - 'ban <jogador>'
