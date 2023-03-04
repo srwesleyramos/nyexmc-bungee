@@ -29,7 +29,7 @@ public class Controller {
         for (Transaction transaction : transactions) {
             ProxiedPlayer player = ProxyServer.getInstance().getPlayer(transaction.identificador);
 
-            if (player == null || transaction.entregue == 3) continue;
+            if (player == null || transaction.entregue == 2) continue;
 
             if (transaction.status == 2) {
                 if (transaction.entregue == 1) {
@@ -41,7 +41,7 @@ public class Controller {
                     }
                 }
 
-                transaction.entregue = 3;
+                transaction.entregue = 2;
 
                 sdk.update(transaction);
                 continue;
@@ -57,13 +57,13 @@ public class Controller {
                 for (int i = 0; i < product.quantidade; i++) {
                     for (ProductCommand command : product.comandos) {
                         if (!command.console && !bungeecordCommands) {
-                            player.chat("/" + command.cmd.replace("<jogador>", player.getName()));
+                            player.chat("/" + command.comando.replace("<jogador>", player.getName()));
                             continue;
                         }
 
                         ProxyServer.getInstance().getPluginManager().dispatchCommand(
                                 command.console ? ProxyServer.getInstance().getConsole() : player,
-                                command.cmd.replace("<jogador>", player.getName())
+                                command.comando.replace("<jogador>", player.getName())
                         );
                     }
                 }
